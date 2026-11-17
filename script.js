@@ -136,21 +136,42 @@ paintSwatches.forEach((swatch) => {
 const enquiryForm = document.querySelector("#enquiry-form");
 const formStatus = document.querySelector("#form-status");
 
-enquiryForm.addEventListener("submit", (event) => {
+enquiryForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!enquiryForm.reportValidity()) return;
 
   const formData = new FormData(enquiryForm);
-  const subject = encodeURIComponent(`Evoque enquiry: ${formData.get("interest")}`);
-  const body = encodeURIComponent([
-    `Name: ${formData.get("name")}`,
-    `Email: ${formData.get("email")}`,
-    `Interested in: ${formData.get("interest")}`,
-    "",
-    `Message: ${formData.get("message") || "No additional message"}`,
-  ].join("\n"));
-  const salesEmail = "sales@madisonavenuemotors.example";
+  const submitButton = enquiryForm.querySelector("[type=submit]");
+  submitButton.disabled = true;
+  formStatus.textContent = "Sending your enquiry…";
 
-  formStatus.textContent = "Opening an email draft to our sales team.";
-  window.location.href = `mailto:${salesEmail}?subject=${subject}&body=${body}`;
+  try {
+    const response = await fetch("/api/enquiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(formData)),
+    });
+    if (response.status === 400) {
+      const { error } = await response.json();
+      formStatus.textContent = error;
+      return;
+    }
+    if (!response.ok) throw new Error(`Enquiry failed: ${response.status}`);
+    enquiryForm.reset();
+    formStatus.textContent = "Thank you — our team will be in touch shortly.";
+  } catch {
+    const subject = encodeURIComponent(`Evoque enquiry: ${formData.get("interest")}`);
+    const body = encodeURIComponent([
+      `Name: ${formData.get("name")}`,
+      `Email: ${formData.get("email")}`,
+      `Interested in: ${formData.get("interest")}`,
+      "",
+      `Message: ${formData.get("message") || "No additional message"}`,
+    ].join("\n"));
+    const salesEmail = "sales@madisonavenuemotors.example";
+    formStatus.textContent = "We couldn’t send that directly, so we’re opening an email draft instead.";
+    window.location.href = `mailto:${salesEmail}?subject=${subject}&body=${body}`;
+  } finally {
+    submitButton.disabled = false;
+  }
 });

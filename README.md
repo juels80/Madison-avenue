@@ -18,6 +18,14 @@ Open `inventory.html` to browse and filter Evoque color photography, or `vehicle
 - `inventory.html` — filterable Evoque color gallery linking to vehicle details.
 - `vehicle.html?paint=<color>` — color-specific Evoque detail page.
 
+## Development
+
+Requires Node 20+.
+
+- `npm test` runs the enquiry validation tests.
+- `npm run dev` runs the site and `/api/enquiry` locally through the Vercel CLI (`npm i -g vercel`).
+- `npm start` serves the static pages only; the form will use its mailto fallback.
+
 ## How it supports the business
 
 - **One clear conversion path:** “Arrange a test drive” and enquiry actions appear throughout the page, connecting product discovery directly to a sales conversation.
@@ -31,7 +39,7 @@ Open `inventory.html` to browse and filter Evoque color photography, or `vehicle
 
 The phone number ((212) 555-0142) and `.example` email address are reserved placeholders, not working business contact details. Replace them and confirm the showroom address before launch. Vehicle photos are from Wikimedia Commons and are credited by photographer, linked source, and CC BY-SA 4.0 license in the footer of every page. The photos do not indicate current inventory; confirm vehicle availability, specifications, and pricing with the dealership.
 
-The enquiry form opens a prefilled email to `sales@madisonavenuemotors.example`; it does not submit to or store data on a server. Before launch, change the recipient in `script.js` and preferably connect the form to the dealership's CRM or a secure server-side lead endpoint. Add consent/privacy wording and an appropriate privacy notice for the market where the site operates.
+The enquiry form posts to a Node serverless function (`api/enquiry.js`) that validates the submission and emails it to the sales team through [Resend](https://resend.com). If the endpoint is unavailable, the form falls back to opening a prefilled email draft to the address in `script.js`. Before launch, set `RESEND_API_KEY`, `ENQUIRY_TO` and `ENQUIRY_FROM` (see `.env.example`) in the Vercel project settings, change the fallback address in `script.js`, and consider connecting the endpoint to the dealership’s CRM. Add consent/privacy wording and an appropriate privacy notice for the market where the site operates.
 
 The footer social icons are non-linked visual elements until the dealership's official social profile URLs are available.
 

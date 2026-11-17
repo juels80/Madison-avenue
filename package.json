@@ -1,0 +1,12 @@
+{
+  "name": "madison-avenue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Madison Avenue Motors Evoque dealership site",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "npx --yes serve .",
+    "test": "node --test"
+  }
+}
